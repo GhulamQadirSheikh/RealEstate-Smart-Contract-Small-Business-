@@ -28,6 +28,12 @@ contract RealEstate {
         address buyer,
         uint price
     );
+    
+    event LogSaleProperty(
+        uint id,
+        address seller,
+        uint price
+    );
 
     event LogRentProperty(
         uint id,
