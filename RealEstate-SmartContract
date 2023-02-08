@@ -1,0 +1,91 @@
+pragma solidity ^0.8.0;
+
+contract RealEstate {
+    struct Property {
+        uint id;
+        string name;
+        uint price;
+        uint rentalPrice;
+        bool forSale;
+        bool forRent;
+        address owner;
+    }
+
+    Property[] public properties;
+
+    event LogNewProperty(
+        uint id,
+        string name,
+        uint price,
+        uint rentalPrice,
+        bool forSale,
+        bool forRent,
+        address owner
+    );
+
+    event LogBuyProperty(
+        uint id,
+        address buyer,
+        uint price
+    );
+
+    event LogRentProperty(
+        uint id,
+        address tenant,
+        uint rentalPrice
+    );
+
+    function addProperty(
+        string memory _name,
+        uint _price,
+        uint _rentalPrice,
+        bool _forSale,
+        bool _forRent
+    ) public {
+        uint id = properties.length;
+        properties.push(Property(
+            id,
+            _name,
+            _price,
+            _rentalPrice,
+            _forSale,
+            _forRent,
+            msg.sender
+        ));
+        emit LogNewProperty(
+            id,
+            _name,
+            _price,
+            _rentalPrice,
+            _forSale,
+            _forRent,
+            msg.sender
+        );
+    }
+
+    function buyProperty(uint _id) public payable {
+        Property storage property = properties[_id];
+        require(property.forSale, "Property is not for sale");
+        require(msg.value >= property.price, "Insufficient funds");
+        property.owner = msg.sender;
+        property.forSale = false;
+        emit LogBuyProperty(
+            _id,
+            msg.sender,
+            property.price
+        );
+    }
+
+    function rentProperty(uint _id) public payable {
+        Property storage property = properties[_id];
+        require(property.forRent, "Property is not for rent");
+        require(msg.value >= property.rentalPrice, "Insufficient funds");
+        property.owner = msg.sender;
+        property.forRent = false;
+        emit LogRentProperty(
+            _id,
+            msg.sender,
+            property.rentalPrice
+        );
+    }
+}
